@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ComposeScreenTest</string>
+
+    <string name="Screen_Unknown">Unknown screen</string>
+    <string name="Screen_First">First Screen</string>
+    <string name="Screen_Second">Second Screen</string>
+</resources>
