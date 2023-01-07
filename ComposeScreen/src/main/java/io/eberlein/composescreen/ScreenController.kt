@@ -25,6 +25,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 
 data class IconObject(
@@ -135,3 +136,9 @@ class ScreenController(
         ) { paddingValues -> getCurrentScreen().Draw(paddingValues, bundle.value) }
     }
 }
+
+@Composable
+fun rememberScreenController(
+    navController: NavHostController = rememberNavController(),
+    screens: MutableMap<String, AScreen>
+) = remember { ScreenController(navController, screens) }

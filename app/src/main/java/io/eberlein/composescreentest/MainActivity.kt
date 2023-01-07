@@ -17,16 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.eberlein.composescreen.AScreen
 import io.eberlein.composescreen.FABObject
 import io.eberlein.composescreen.IconObject
-import io.eberlein.composescreen.ScreenController
 import io.eberlein.composescreen.ScreenInfo
+import io.eberlein.composescreen.rememberScreenController
 import io.eberlein.composescreentest.ui.theme.ComposeScreenTestTheme
 
 class MyFirstScreen : AScreen(
@@ -84,14 +82,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navController = rememberNavController()
-            val screenController = remember {
-                ScreenController(navController, mutableMapOf(
+            val screenController = rememberScreenController(
+                screens = mutableMapOf(
                     "first" to MyFirstScreen(),
                     "second" to MySecondScreen(),
                     "number/{number}" to NumberScreen()
-                ))
-            }
+                )
+            )
 
             ComposeScreenTestTheme {
                 screenController.Draw()
