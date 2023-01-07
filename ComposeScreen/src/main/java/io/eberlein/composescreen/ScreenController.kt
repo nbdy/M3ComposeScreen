@@ -52,7 +52,7 @@ data class FABObject(
 
 data class ScreenInfo(
     val title: Int,
-    val icon: IconObject,
+    val icon: IconObject? = null,
     val fabObject: FABObject? = null,
     val navArguments: List<NamedNavArgument> = listOf()
 ) {
@@ -119,8 +119,10 @@ class ScreenController(
                 BottomAppBar(
                     actions = {
                         screens.forEach { entry ->
-                            IconButton(onClick = { navController.navigate(entry.key) }) {
-                                entry.value.info.icon.Draw()
+                            if (entry.value.info.icon != null) {
+                                IconButton(onClick = { navController.navigate(entry.key) }) {
+                                    entry.value.info.icon!!.Draw()
+                                }
                             }
                         }
                     },
