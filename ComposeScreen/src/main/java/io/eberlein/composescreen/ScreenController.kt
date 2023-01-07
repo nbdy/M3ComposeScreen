@@ -53,7 +53,7 @@ data class FABObject(
 data class ScreenInfo(
     val title: Int,
     val icon: IconObject,
-    val fabObject: FABObject?,
+    val fabObject: FABObject? = null,
     val navArguments: List<NamedNavArgument> = listOf()
 ) {
     @Composable fun getTitle() = stringResource(title)
