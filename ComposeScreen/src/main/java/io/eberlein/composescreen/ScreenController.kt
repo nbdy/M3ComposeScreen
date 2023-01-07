@@ -1,5 +1,6 @@
 package io.eberlein.composescreen
 
+import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomAppBar
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,8 +33,8 @@ data class IconObject(
 }
 
 data class FABObject(
-    val callback: () -> Unit,
-    val icon: IconObject
+    val icon: IconObject,
+    var callback: () -> Unit = {},
 ) {
     @Composable fun Draw() { FloatingActionButton(onClick = { callback() }) { icon.Draw() } }
 }
@@ -40,70 +42,75 @@ data class FABObject(
 data class ScreenInfo(
     val title: Int,
     val icon: IconObject,
-    val fabObject: FABObject? = null
-)
+    val fabObject: FABObject? = null,
+    val navArguments: List<NamedNavArgument> = listOf()
+) {
+    @Composable fun getTitle() = stringResource(title)
+}
 
 interface IScreen {
     @ExperimentalMaterial3Api
     @Composable
-    fun Draw(paddingValues: PaddingValues)
+    fun Draw(paddingValues: PaddingValues, bundle: Bundle?)
     @Composable
     fun getError(): String?
-    fun getInfo(): ScreenInfo
+    @Composable fun getTitle(): String
 }
 
 abstract class AScreen(
-    private val info: ScreenInfo,
-    @StringRes private val error: Int? = null
+    val info: ScreenInfo,
+    @StringRes val error: Int? = null
 ) : IScreen {
-    override fun getInfo() = info
     @Composable
     override fun getError() = if (error != null) {
         stringResource(error)
     } else {
         null
     }
+    @Composable
+    override fun getTitle() = info.getTitle()
 }
 
 class ScreenController(
     private val navController: NavHostController,
-    private val screens: MutableMap<String, IScreen>,
+    private val screens: MutableMap<String, AScreen>,
     private var currentRoute: MutableState<String> = mutableStateOf(screens.keys.first()),
 ) {
-    @Composable
-    fun getScreenTitle(): String {
-        return if (screens[currentRoute.value] == null) {
-            stringResource(R.string.Screen_Unknown)
-        } else {
-            stringResource(screens[currentRoute.value]!!.getInfo().title)
-        }
-    }
-
-    fun GetCurrentScreen() = screens[currentRoute.value]!!
+    private fun getCurrentScreen() = screens[currentRoute.value]!!
 
     @ExperimentalMaterial3Api
     @Composable
     fun Draw() {
         val snackBarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
-        val fab = remember { GetCurrentScreen().getInfo().fabObject }
+        val fab = remember { getCurrentScreen().info.fabObject }
+        val bundle = remember { mutableStateOf<Bundle?>(null) }
 
         fun showSnackBar(message: String) {
             coroutineScope.launch { snackBarHostState.showSnackbar(message) }
         }
 
         NavHost(navController, startDestination = currentRoute.value) {
-            screens.forEach { entry -> composable(entry.key) { currentRoute.value = entry.key } }
+            screens.forEach { entry ->
+                val route = entry.key
+                composable(
+                    route,
+                    arguments = entry.value.info.navArguments
+                ) { backStackEntry ->
+                    bundle.value = backStackEntry.arguments
+                    currentRoute.value = route
+                }
+            }
         }
 
         Scaffold(
-            topBar = { TopAppBar(title = { Text(getScreenTitle()) }) },
+            topBar = { TopAppBar(title = { Text(getCurrentScreen().getTitle()) }) },
             bottomBar = {
                 BottomAppBar(
                     actions = {
                         screens.forEach { entry ->
                             IconButton(onClick = { navController.navigate(entry.key) }) {
-                                entry.value.getInfo().icon.Draw()
+                                entry.value.info.icon.Draw()
                             }
                         }
                     },
@@ -111,13 +118,11 @@ class ScreenController(
                 )
             },
             snackbarHost = {
-                val error = GetCurrentScreen().getError()
+                val error = getCurrentScreen().getError()
                 if (error != null) {
                     showSnackBar(error)
                 }
             }
-        ) { paddingValues ->
-            GetCurrentScreen().Draw(paddingValues)
-        }
+        ) { paddingValues -> getCurrentScreen().Draw(paddingValues, bundle.value) }
     }
 }

@@ -4,4 +4,5 @@
     <string name="Screen_Unknown">Unknown screen</string>
     <string name="Screen_First">First Screen</string>
     <string name="Screen_Second">Second Screen</string>
+    <string name="Screen_Number">Screen %1$d</string>
 </resources>
