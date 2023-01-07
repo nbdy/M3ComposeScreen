@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -36,13 +38,21 @@ data class FABObject(
     val icon: IconObject,
     var callback: () -> Unit = {},
 ) {
-    @Composable fun Draw() { FloatingActionButton(onClick = { callback() }) { icon.Draw() } }
+    @Composable fun Draw() {
+        FloatingActionButton(
+            onClick = { callback() },
+            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+        ) {
+            icon.Draw()
+        }
+    }
 }
 
 data class ScreenInfo(
     val title: Int,
     val icon: IconObject,
-    val fabObject: FABObject? = null,
+    val fabObject: FABObject?,
     val navArguments: List<NamedNavArgument> = listOf()
 ) {
     @Composable fun getTitle() = stringResource(title)
@@ -83,7 +93,6 @@ class ScreenController(
     fun Draw() {
         val snackBarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
-        val fab = remember { getCurrentScreen().info.fabObject }
         val bundle = remember { mutableStateOf<Bundle?>(null) }
 
         fun showSnackBar(message: String) {
@@ -114,7 +123,7 @@ class ScreenController(
                             }
                         }
                     },
-                    floatingActionButton = { fab?.Draw() }
+                    floatingActionButton = { getCurrentScreen().info.fabObject?.Draw() }
                 )
             },
             snackbarHost = {

@@ -15,6 +15,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,7 +30,7 @@ import io.eberlein.composescreen.ScreenInfo
 import io.eberlein.composescreentest.ui.theme.ComposeScreenTestTheme
 
 class MyFirstScreen : AScreen(
-    ScreenInfo(R.string.Screen_First, IconObject(Icons.Filled.Info, null))
+    ScreenInfo(R.string.Screen_First, IconObject(Icons.Filled.Info, null), null)
 ) {
     @ExperimentalMaterial3Api
     @Composable
@@ -40,7 +42,7 @@ class MyFirstScreen : AScreen(
 }
 
 class MySecondScreen : AScreen(
-    ScreenInfo(R.string.Screen_Second, IconObject(Icons.Filled.Send, null))
+    ScreenInfo(R.string.Screen_Second, IconObject(Icons.Filled.Send, null), null)
 ) {
     @ExperimentalMaterial3Api
     @Composable
@@ -52,7 +54,7 @@ class MySecondScreen : AScreen(
 }
 
 class NumberScreen(
-    var currentNumber: Int = 0
+    private var currentNumber: MutableState<Int> = mutableStateOf(0)
 ) : AScreen(
     ScreenInfo(
         R.string.Screen_Number,
@@ -62,16 +64,16 @@ class NumberScreen(
     )
 ) {
     init {
-        info.fabObject!!.callback = { currentNumber++ }
+        info.fabObject!!.callback = { currentNumber.value++ }
     }
 
-    @Composable override fun getTitle(): String = stringResource(info.title, currentNumber)
+    @Composable override fun getTitle(): String = stringResource(info.title, currentNumber.value)
 
     @ExperimentalMaterial3Api
     @Composable
     override fun Draw(paddingValues: PaddingValues, bundle: Bundle?) {
         Column(modifier = Modifier.padding(paddingValues)) {
-            ListItem(headlineText = { Text(text = "Number: $currentNumber") })
+            ListItem(headlineText = { Text(text = "Number: ${currentNumber.value}") })
         }
     }
 }
