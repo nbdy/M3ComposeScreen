@@ -3,8 +3,11 @@ package io.eberlein.composescreentest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -16,9 +19,14 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import io.eberlein.composescreen.AScreen
 import io.eberlein.composescreen.FABObject
@@ -32,7 +40,7 @@ class MyFirstScreen : AScreen(
 ) {
     @ExperimentalMaterial3Api
     @Composable
-    override fun Draw(paddingValues: PaddingValues, bundle: Bundle?) {
+    override fun Draw(navController: NavController, paddingValues: PaddingValues) {
         Column(modifier = Modifier.padding(paddingValues)) {
             ListItem(headlineText = { Text(text = "First Screen") })
         }
@@ -44,21 +52,20 @@ class MySecondScreen : AScreen(
 ) {
     @ExperimentalMaterial3Api
     @Composable
-    override fun Draw(paddingValues: PaddingValues, bundle: Bundle?) {
+    override fun Draw(navController: NavController, paddingValues: PaddingValues) {
         Column(modifier = Modifier.padding(paddingValues)) {
             ListItem(headlineText = { Text(text = "Second Screen") })
         }
     }
 }
 
-class NumberScreen(
+class NumbersScreen(
     private var currentNumber: MutableState<Int> = mutableStateOf(0)
 ) : AScreen(
     ScreenInfo(
         R.string.Screen_Number,
         IconObject(Icons.Filled.Notifications, null),
-        FABObject(IconObject(Icons.Filled.Star, null)),
-        navArguments = listOf(navArgument("number") {})
+        FABObject(IconObject(Icons.Filled.Star, null))
     )
 ) {
     init {
@@ -69,9 +76,41 @@ class NumberScreen(
 
     @ExperimentalMaterial3Api
     @Composable
-    override fun Draw(paddingValues: PaddingValues, bundle: Bundle?) {
+    override fun Draw(navController: NavController, paddingValues: PaddingValues) {
         Column(modifier = Modifier.padding(paddingValues)) {
-            ListItem(headlineText = { Text(text = "Number: ${currentNumber.value}") })
+            (0..currentNumber.value).forEach {
+                ListItem(
+                    headlineText = { Text(it.toString()) },
+                    modifier = Modifier.clickable { navController.navigate("number/$it") }
+                )
+            }
+        }
+    }
+}
+
+class NumberScreen : AScreen(
+    ScreenInfo(
+        R.string.Placeholder,
+        navArguments = listOf(
+            navArgument("number") { type = NavType.IntType }
+        )
+    )
+) {
+    private var currentNumber by mutableStateOf(0)
+
+    @Composable
+    override fun getTitle(): String = stringResource(R.string.Placeholder, currentNumber)
+
+    @ExperimentalMaterial3Api
+    @Composable
+    override fun Draw(navController: NavController, paddingValues: PaddingValues) {
+        currentNumber = navController.currentBackStackEntry?.arguments?.getInt("number")!!
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(currentNumber.toString())
         }
     }
 }
@@ -86,6 +125,7 @@ class MainActivity : ComponentActivity() {
                 screens = mutableMapOf(
                     "first" to MyFirstScreen(),
                     "second" to MySecondScreen(),
+                    "numbers" to NumbersScreen(),
                     "number/{number}" to NumberScreen()
                 )
             )

@@ -1,6 +1,5 @@
 package io.eberlein.composescreen
 
-import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomAppBar
@@ -15,13 +14,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -62,7 +63,7 @@ data class ScreenInfo(
 interface IScreen {
     @ExperimentalMaterial3Api
     @Composable
-    fun Draw(paddingValues: PaddingValues, bundle: Bundle?)
+    fun Draw(navController: NavController, paddingValues: PaddingValues)
     @Composable
     fun getError(): String?
     @Composable fun getTitle(): String
@@ -85,30 +86,26 @@ abstract class AScreen(
 class ScreenController(
     private val navController: NavHostController,
     private val screens: MutableMap<String, AScreen>,
-    private var currentRoute: MutableState<String> = mutableStateOf(screens.keys.first()),
+    private var startDestination: String = screens.keys.first(),
 ) {
-    private fun getCurrentScreen() = screens[currentRoute.value]!!
+    private var currentRoute by mutableStateOf<String?>(startDestination)
+
+    private fun getCurrentScreen() = screens[currentRoute]!!
 
     @ExperimentalMaterial3Api
     @Composable
     fun Draw() {
         val snackBarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
-        val bundle = remember { mutableStateOf<Bundle?>(null) }
 
         fun showSnackBar(message: String) {
             coroutineScope.launch { snackBarHostState.showSnackbar(message) }
         }
 
-        NavHost(navController, startDestination = currentRoute.value) {
+        NavHost(navController, startDestination = startDestination) {
             screens.forEach { entry ->
-                val route = entry.key
-                composable(
-                    route,
-                    arguments = entry.value.info.navArguments
-                ) { backStackEntry ->
-                    bundle.value = backStackEntry.arguments
-                    currentRoute.value = route
+                composable(entry.key, arguments = entry.value.info.navArguments) {
+                    currentRoute = entry.key
                 }
             }
         }
@@ -135,7 +132,7 @@ class ScreenController(
                     showSnackBar(error)
                 }
             }
-        ) { paddingValues -> getCurrentScreen().Draw(paddingValues, bundle.value) }
+        ) { paddingValues -> getCurrentScreen().Draw(navController, paddingValues) }
     }
 }
 
