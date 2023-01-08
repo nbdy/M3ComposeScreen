@@ -36,7 +36,7 @@ import io.eberlein.composescreen.rememberScreenController
 import io.eberlein.composescreentest.ui.theme.ComposeScreenTestTheme
 
 class MyFirstScreen : AScreen(
-    ScreenInfo(R.string.Screen_First, IconObject(Icons.Filled.Info, null), null)
+    ScreenInfo(R.string.Screen_First, IconObject(Icons.Filled.Info))
 ) {
     @ExperimentalMaterial3Api
     @Composable
@@ -48,7 +48,7 @@ class MyFirstScreen : AScreen(
 }
 
 class MySecondScreen : AScreen(
-    ScreenInfo(R.string.Screen_Second, IconObject(Icons.Filled.Send, null), null)
+    ScreenInfo(R.string.Screen_Second, IconObject(Icons.Filled.Send))
 ) {
     @ExperimentalMaterial3Api
     @Composable
@@ -64,8 +64,8 @@ class NumbersScreen(
 ) : AScreen(
     ScreenInfo(
         R.string.Screen_Number,
-        IconObject(Icons.Filled.Notifications, null),
-        FABObject(IconObject(Icons.Filled.Star, null))
+        IconObject(Icons.Filled.Notifications),
+        FABObject(IconObject(Icons.Filled.Star))
     )
 ) {
     init {
