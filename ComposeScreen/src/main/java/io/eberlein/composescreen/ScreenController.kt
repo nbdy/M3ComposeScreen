@@ -38,11 +38,11 @@ data class IconObject(
 
 data class FABObject(
     val icon: IconObject,
-    var callback: () -> Unit = {},
+    var callback: (NavHostController) -> Unit = {},
 ) {
-    @Composable fun Draw() {
+    @Composable fun Draw(navController: NavHostController) {
         FloatingActionButton(
-            onClick = { callback() },
+            onClick = { callback(navController) },
             containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
         ) {
@@ -123,7 +123,7 @@ class ScreenController(
                             }
                         }
                     },
-                    floatingActionButton = { getCurrentScreen().info.fabObject?.Draw() }
+                    floatingActionButton = { getCurrentScreen().info.fabObject?.Draw(navController) }
                 )
             },
             snackbarHost = {
