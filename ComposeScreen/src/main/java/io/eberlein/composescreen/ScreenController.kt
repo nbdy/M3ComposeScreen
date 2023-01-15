@@ -55,7 +55,8 @@ data class ScreenInfo(
     val title: Int,
     val icon: IconObject? = null,
     val fabObject: FABObject? = null,
-    val navArguments: List<NamedNavArgument> = listOf()
+    val navArguments: List<NamedNavArgument> = listOf(),
+    val leadingTopBarIcon: @Composable (NavHostController) -> Unit = {}
 ) {
     @Composable fun getTitle() = stringResource(title)
 }
@@ -97,6 +98,7 @@ class ScreenController(
     fun Draw() {
         val snackBarHostState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
+        val currentScreen = getCurrentScreen()
 
         fun showSnackBar(message: String) {
             coroutineScope.launch { snackBarHostState.showSnackbar(message) }
@@ -111,7 +113,12 @@ class ScreenController(
         }
 
         Scaffold(
-            topBar = { TopAppBar(title = { Text(getCurrentScreen().getTitle()) }) },
+            topBar = {
+                TopAppBar(
+                    title = { Text(currentScreen.getTitle()) },
+                    navigationIcon = { currentScreen.info.leadingTopBarIcon(navController) }
+                )
+            },
             bottomBar = {
                 BottomAppBar(
                     actions = {
@@ -123,16 +130,16 @@ class ScreenController(
                             }
                         }
                     },
-                    floatingActionButton = { getCurrentScreen().info.fabObject?.Draw(navController) }
+                    floatingActionButton = { currentScreen.info.fabObject?.Draw(navController) }
                 )
             },
             snackbarHost = {
-                val error = getCurrentScreen().getError()
+                val error = currentScreen.getError()
                 if (error != null) {
                     showSnackBar(error)
                 }
             }
-        ) { paddingValues -> getCurrentScreen().Draw(navController, paddingValues) }
+        ) { paddingValues -> currentScreen.Draw(navController, paddingValues) }
     }
 }
 
