@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -93,7 +96,12 @@ class NumberScreen : AScreen(
         R.string.Placeholder,
         navArguments = listOf(
             navArgument("number") { type = NavType.IntType }
-        )
+        ),
+        leadingTopBarIcon = {
+            IconButton(onClick = { it.popBackStack() }) {
+                Icon(Icons.Filled.ArrowBack, null)
+            }
+        }
     )
 ) {
     private var currentNumber by mutableStateOf(0)
