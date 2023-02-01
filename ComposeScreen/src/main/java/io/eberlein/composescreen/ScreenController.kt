@@ -1,5 +1,6 @@
 package io.eberlein.composescreen
 
+import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.BottomAppBar
@@ -82,6 +83,9 @@ abstract class AScreen(
     }
     @Composable
     override fun getTitle() = info.getTitle()
+
+    fun getBundle(navController: NavController): Bundle =
+        navController.currentBackStackEntry!!.arguments!!
 }
 
 class ScreenController(

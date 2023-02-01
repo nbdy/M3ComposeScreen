@@ -112,7 +112,7 @@ class NumberScreen : AScreen(
     @ExperimentalMaterial3Api
     @Composable
     override fun Draw(navController: NavController, paddingValues: PaddingValues) {
-        currentNumber = navController.currentBackStackEntry?.arguments?.getInt("number")!!
+        currentNumber = getBundle(navController).getInt("number")
 
         Box(
             modifier = Modifier.fillMaxSize(),
