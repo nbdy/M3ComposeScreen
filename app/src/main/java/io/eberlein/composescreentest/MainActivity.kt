@@ -45,7 +45,7 @@ class MyFirstScreen : AScreen(
     @Composable
     override fun Draw(navController: NavController, paddingValues: PaddingValues) {
         Column(modifier = Modifier.padding(paddingValues)) {
-            ListItem(headlineText = { Text(text = "First Screen") })
+            ListItem(headlineContent = { Text(text = "First Screen") })
         }
     }
 }
@@ -57,7 +57,7 @@ class MySecondScreen : AScreen(
     @Composable
     override fun Draw(navController: NavController, paddingValues: PaddingValues) {
         Column(modifier = Modifier.padding(paddingValues)) {
-            ListItem(headlineText = { Text(text = "Second Screen") })
+            ListItem(headlineContent = { Text(text = "Second Screen") })
         }
     }
 }
@@ -83,7 +83,7 @@ class NumbersScreen(
         Column(modifier = Modifier.padding(paddingValues)) {
             (0..currentNumber.value).forEach {
                 ListItem(
-                    headlineText = { Text(it.toString()) },
+                    headlineContent = { Text(it.toString()) },
                     modifier = Modifier.clickable { navController.navigate("number/$it") }
                 )
             }
